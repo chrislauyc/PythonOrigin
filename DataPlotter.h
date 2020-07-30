@@ -47,7 +47,6 @@ public:
 	GraphPage gp; //Holds the current graph page object
 	GraphLayer gl; //Holds the current graph layer object
 	DataPlot dp; //Holds the current dataplot object
-	
 	//#############Member Functions#####################
 	//Constructor takes in a new name for graph page
 	DataPlotter(string sGraphPageName);
@@ -66,6 +65,7 @@ public:
 	//set increment
 	void axis_increment_by_value(int nAxisType, double dIncrementBy); //increment by value
 	void axis_increment_by_ticks(int nAxisType, int nMajTicksCount); //increment by ticks
+	void smart_axis_increment(int nAxisType); //increment by ticks
 	//set rescale parameters
 	void axis_rescale_type(int nAxisType, int nType); //Linear: 0, see origin lab
 	void axis_rescale(int nAxisType, int nRescale); //Fixed: 0, see origin lab
@@ -74,6 +74,7 @@ public:
 	//set axis label
 	void axis_label_size(int nAxisType, double dSize);
 	//set axis label Numeric Format
+	//nFormat: 0=Decimal(1000),1:Scientific(1E^3),2:Engineering(3k),3:Decimal(1,000),4:Scientific(1E3)
 	void axis_label_numeric_format(int nAxisType, int nFormat);
 	//set axis title
 	void axis_title_size(int nAxisType, double dSize);
@@ -85,7 +86,7 @@ public:
 	
 	//***************DataPlot Settings********************
 	//plot (would include color, size, and plot type) (specific worksheet name)
-	void make_plot(string sWksName, int nCx, int nCy, int nPlotID);
+	void make_plot(string sWksName, int nCx, int nCy, int nPlotID); //IDM_PLOT_LINE, IDM_PLOT_SCATTER, IDM_PLOT_LINESYMB
 	//
 	void plot_marker_style(int nMarkerStyle);
 	void plot_marker_size(double dMarkerSize);
@@ -97,4 +98,5 @@ public:
 	void plot_line_style(int nLineStyle);
 	void plot_line_width(double dLineWidth);
 
+	
 };

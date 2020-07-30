@@ -27,6 +27,7 @@
 // Include your own header files here.
 #include <E:\OneDrive - University of Utah\Anderson's lab\OriginC\graph_utils.h> 
 #include "DataPlotter.h"
+#include <math.h>
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Start your functions here.
@@ -81,7 +82,7 @@ void DataPlotter::select_plot(int nPlotInd)
 
 void DataPlotter::add_layer(int nAxisType, int nLinkTo = 0, int nXAxisLink = LINK_STRAIGHT, int nYAxisLink = 0)
 {
-	// sAxType will determine which axis will be visible. Options are "Right","Left","Top","Bottom"
+	// nLinkTo will determine which axis will be visible. 
 	// int nLinkTo is the index of the layer to link to
 	// int nXAxisLink is how the x axis should be linked. Options are: 0, LINK_STRAIGHT, LINKED_AXIS_CUSTOM, LINKED_AXIS_ALIGN
 	// int nYAxisLink is how the y axis should be linked. Options are: 0, LINK_STRAIGHT, LINKED_AXIS_CUSTOM, LINKED_AXIS_ALIGN
@@ -110,8 +111,43 @@ void DataPlotter::add_layer(int nAxisType, int nLinkTo = 0, int nXAxisLink = LIN
 	gl = gp.Layers(nLayerInt);
 	
 }
-
-
+void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool bLabels = true, bool bTitleOn = true, int nMajorTicks = TICK_OUT, int nMinorTicks = TICK_OUT)
+{
+	Tree tr;
+	Axis axis = get_axis(nAxisType);
+	//tr = gl.XAxis.GetFormat(FPB_ALL, FOB_ALL, true, true);
+	switch(nAxisType)
+	{
+	case AXIS_BOTTOM:
+		tr.Root.Ticks.BottomTicks.AddNode("Show").nVal = bAxisOn ? 1:0;
+		tr.Root.Ticks.BottomTicks.LineShow.nVal = bAxisOn ? 1:0;
+		tr.Root.Labels.BottomLabels.AddNode("Show").nVal = bLabels ? 1:0;
+		tr.Root.Titles.BottomTitle.AddNode("Show").nVal = bTitleOn ? 1:0;
+		break;
+	case AXIS_LEFT:
+		tr.Root.Ticks.LeftTicks.AddNode("Show").nVal = bAxisOn ? 1:0;
+		tr.Root.Ticks.LeftTicks.LineShow.nVal = bAxisOn ? 1:0;
+		tr.Root.Labels.LeftLabels.AddNode("Show").nVal = bLabels ? 1:0;
+		tr.Root.Titles.LeftTitle.AddNode("Show").nVal = bTitleOn ? 1:0;
+		break;
+	case AXIS_TOP:
+		tr.Root.Ticks.TopTicks.AddNode("Show").nVal = bAxisOn ? 1:0;
+		tr.Root.Ticks.TopTicks.LineShow.nVal = bAxisOn ? 1:0;
+		tr.Root.Labels.TopLabels.AddNode("Show").nVal = bLabels ? 1:0;
+		tr.Root.Titles.TopTitle.AddNode("Show").nVal = bTitleOn ? 1:0;
+		break;
+	case AXIS_RIGHT:
+		tr.Root.Ticks.RightTicks.AddNode("Show").nVal = bAxisOn ? 1:0;
+		tr.Root.Ticks.RightTicks.LineShow.nVal = bAxisOn ? 1:0;
+		tr.Root.Labels.RightLabels.AddNode("Show").nVal = bLabels ? 1:0;
+		tr.Root.Titles.RightTitle.AddNode("Show").nVal = bTitleOn ? 1:0;
+		break;
+	}
+	upate_axis(tr, axis);
+	//tr = gl.YAxis.GetFormat(FPB_ALL, FOB_ALL, true, true);
+	//out_tree(tr);
+}
+/*
 void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool bLabels = true, bool bTitleOn = true, int nMajorTicks = TICK_OUT, int nMinorTicks = TICK_OUT)
 {
 	//nAxisType: AXIS_LEFT, AXIS_RIGHT, AXIS_TOP, AXIS_BOTTOM
@@ -157,7 +193,7 @@ void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool
 	vnMinorTicks[nAxisType] = nMinorTicks;
 	gl_smart_show_object(gl, vnAxes, vnLabels, vnTitles, vnMajorTicks, vnMinorTicks);
 }
-
+*/
 void DataPlotter::axis_from(int nAxisType, double dFrom)
 {
 	Tree tr;
@@ -197,7 +233,66 @@ void DataPlotter::axis_increment_by_ticks(int nAxisType, int nMajTicksCount)
 	upate_axis(tr, axis);
 	
 }
+void DataPlotter::smart_axis_increment(int nAxisType)
+{
+	
+	Tree tr;
+	//tr = gl.YAxis.GetFormat(FPB_ALL, FOB_ALL, true, true);
+	int nMajTicksCount = 5;
+	Axis axis = get_axis(nAxisType);
+	tr = axis.GetFormat(FPB_ALL, FOB_ALL, true, true);
+	double dFrom = tr.Root.Scale.From.dVal;
+	double dTo = tr.Root.Scale.To.dVal;
+	double diff = dTo-dFrom;
+	double exp = log10(diff/nMajTicksCount);
+	int iexp = round(exp,0);
+	
+	double dIncrementBy = pow(10,iexp);
+	
+	if(diff/dIncrementBy <= 3)
+		dIncrementBy = dIncrementBy/2;
+	else if(diff/dIncrementBy >= 9)
+		dIncrementBy = dIncrementBy*2;
+	axis_increment_by_value(nAxisType,dIncrementBy);
+	
+	//automatically determine the decimal places.
+	int nDigits = abs(floor(log10(dTo))-floor(log10(dIncrementBy)));
+	switch(nAxisType)
+	{
+	case AXIS_BOTTOM:
+		if(tr.Root.Labels.BottomLabels.NumericFormat.nVal == 1)
+		{
+			tr.Root.Labels.BottomLabels.CustomDecimal.nVal = 1;
+			tr.Root.Labels.BottomLabels.DecimalPlaces.nVal = nDigits;
+		}
+		break;
+	case AXIS_LEFT:
+		if(tr.Root.Labels.LeftLabels.NumericFormat.nVal == 1)
+		{
+			tr.Root.Labels.LeftLabels.CustomDecimal.nVal = 1;
+			tr.Root.Labels.LeftLabels.DecimalPlaces.nVal = nDigits;
+		}
+		break;
+	case AXIS_TOP:
+		if(tr.Root.Labels.TopLabels.NumericFormat.nVal == 1)
+		{
+			tr.Root.Labels.TopLabels.CustomDecimal.nVal = 1;
+			tr.Root.Labels.TopLabels.DecimalPlaces.nVal = nDigits;
+		}
+		break;
+	case AXIS_RIGHT:
+		if(tr.Root.Labels.RightLabels.NumericFormat.nVal ==1)
+		{
+			tr.Root.Labels.RightLabels.CustomDecimal.nVal = 1;
+			tr.Root.Labels.RightLabels.DecimalPlaces.nVal = nDigits;
+		}
+			break;
+	}
+	upate_axis(tr, axis);
+	
+	
 
+}
 
 
 void DataPlotter::axis_rescale_type(int nAxisType, int nType)
@@ -259,7 +354,7 @@ void DataPlotter::axis_label_size(int nAxisType, double dSize)
 void DataPlotter::axis_label_numeric_format(int nAxisType, int nFormat)
 {
 	
-	//modify CustomDecimal
+	
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
 	switch(nAxisType)
@@ -275,9 +370,12 @@ void DataPlotter::axis_label_numeric_format(int nAxisType, int nFormat)
 		break;
 	case AXIS_RIGHT:
 		tr.Root.Labels.RightLabels.NumericFormat.nVal = nFormat;
+		tr.Root.Labels.RightLabels.DecimalPlaces.nVal = 3;
 		break;
 	}
 	upate_axis(tr, axis);
+	//tr = dp.GetFormat(FPB_ALL, FOB_ALL, true, true);
+	//out_tree(tr);
 	
 }
 void DataPlotter::axis_title_size(int nAxisType, double dSize)
@@ -371,10 +469,12 @@ void DataPlotter::axis_pos_offset(int nAxisType, double dPosOffset)
 		ao.SetPosition(AXIS_POS_REAL,ao.GetPosition()+dPosOffset);
 		break;
 	case AXIS_RIGHT:
+		
 		ao = gl.YAxis.AxisObjects(AXISOBJPOS_AXIS_SECOND);
 		ao.SetPosition(AXIS_POS_REAL,ao.GetPosition()+dPosOffset);
 		break;
 	}
+	
 }
 void DataPlotter::make_plot(string sWksName, int nCx, int nCy, int nPlotID)
 {
@@ -404,6 +504,7 @@ void DataPlotter::make_plot(string sWksName, int nCx, int nCy, int nPlotID)
 	
 	dp = gl.DataPlots(nPlot);
 	gl.Rescale();
+	
 	//dp.SetColor(RGB2OCOLOR(color));
 	////Show tree of the dataplot
 	//Tree tr;

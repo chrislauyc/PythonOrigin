@@ -34,181 +34,142 @@
 ////////////////////////////////////////////////////////////////////////////////////
 // Start your functions here.
 
-AxisObject get_ao(const GraphLayer gl, const int nAxisType)
+DataPlotter dataplotter;
+
+void make_graph(string sGraphPageName)
 {
-	AxisObject ao;
-	switch (nAxisType)
-	{
-	case AXIS_BOTTOM:
-		ao = gl.XAxis.AxisObjects(AXISOBJPOS_AXIS_FIRST);
-		break;
-	case AXIS_LEFT:
-		ao = gl.YAxis.AxisObjects(AXISOBJPOS_AXIS_FIRST);
-		break;
-	case AXIS_TOP:
-		ao = gl.XAxis.AxisObjects(AXISOBJPOS_AXIS_SECOND);
-		break;
-	case AXIS_RIGHT:
-		ao = gl.YAxis.AxisObjects(AXISOBJPOS_AXIS_SECOND);
-		break;
-	}
-	return ao;
+	DataPlotter new_dp(sGraphPageName);
+	dataplotter = new_dp;
+	dataplotter.show_axis(AXIS_BOTTOM, true, true, true, TICK_OUT, TICK_OUT);
+	dataplotter.show_axis(AXIS_LEFT, true, true, true, TICK_OUT, TICK_OUT);
 }
-void clear_project()
+
+void add_xlinked_layer_right()
 {
-	//empty the project space
-	bool exists = true;
-	WorksheetPage wksPg;
-	do
-	{
-		wksPg = Project.WorksheetPages.Item(0);
-		
-		if(wksPg)
-			wksPg.Destroy();
-		else
-			exists = false;
-	}while(exists);
-	exists = true;
-	GraphPage grPg;
-	do
-	{
-		grPg = Project.GraphPages.Item(0);
-		if(grPg)
-			grPg.Destroy();
-		else
-			exists = false;
-	}while(exists);
+	dataplotter.add_layer(AXIS_RIGHT,0,LINK_STRAIGHT,0);
+	dataplotter.show_axis(AXIS_RIGHT, true, true, true, TICK_OUT, TICK_OUT);
 }
-
-WorksheetPage make_wb(string name,string longname = "")
+void add_xlinked_layer_left()
 {
-	WorksheetPage wksPg;
-	wksPg.Create();
-	wksPg.SetName(name);
-	wksPg.SetLongName(longname,false);
-	return wksPg;
+	dataplotter.add_layer(AXIS_LEFT,0,LINK_STRAIGHT,0);
+	dataplotter.show_axis(AXIS_LEFT, true, true, true, TICK_OUT, TICK_OUT);
 }
-Worksheet Add_ws(WorksheetPage wksPg, string name)
+void xrange(double dFrom, double dTo)
 {
-	int index = wksPg.AddLayer(name);
-	Worksheet wksNew = wksPg.Layers(index);
-	return wksNew;
+	dataplotter.axis_from(AXIS_BOTTOM,dFrom);
+	dataplotter.axis_to(AXIS_BOTTOM,dTo);
+	dataplotter.smart_axis_increment(AXIS_BOTTOM);
 }
-
-
-
-GraphPage make_gp(string name)
-{	
-	//numYs is the number of y axies to add
-
-	GraphPage gp(name);
-	//need to be careful about this. May need to remove.
-	if(gp)
-		gp.Destroy();
-	//
-	gp.Create();
-	gp.SetName(name);
-	
-	return gp;
-}
-//Newly added
-
-
-
-
-
-// Newly added END
-
-GraphLayer add_layer(GraphPage gp, string sAxType = "Right", int nLinkTo = 0, int nXAxisLink = LINK_STRAIGHT, int nYAxisLink = 0)
+void yrange(double dFrom, double dTo)
 {
-	// sAxType will determine which axis will be visible. Options are "Right","Left","Top","Bottom"
-	// int nLinkTo is the index of the layer to link to
-	// int nXAxisLink is how the x axis should be linked. Options are: 0, LINK_STRAIGHT, LINKED_AXIS_CUSTOM, LINKED_AXIS_ALIGN
-	// int nYAxisLink is how the y axis should be linked. Options are: 0, LINK_STRAIGHT, LINKED_AXIS_CUSTOM, LINKED_AXIS_ALIGN
-	bool bBottom = false, bLeft = false, bTop = false, bRight = false;
-	int nType;
-	if(sAxType == "Left")
-	{
-		bLeft = true;
-		nType = AXIS_LEFT;
-	}
-	else if(sAxType == "Right")
-	{
-		bRight = true;
-		nType = AXIS_RIGHT;
-	}
-	else if(sAxType == "Bottom")
-	{
-		bBottom = true;
-		nType = AXIS_BOTTOM;
-	}
-	else if(sAxType == "Top")
-	{
-		bTop = true;
-		nType = AXIS_TOP;
-	}
-	else
-	{
-		bRight = true;
-		nType = AXIS_RIGHT;
-	}
-	
-	
-	//int nLinkTo = 0; // 
-	bool bActivateNewLayer = false;
-	page_add_layer(gp, bBottom, bLeft, bTop, bRight,ADD_LAYER_INIT_SIZE_POS_MOVE_OFFSET, bActivateNewLayer, nLinkTo, nXAxisLink, nYAxisLink);
-	
-	GraphLayer gl = gp.Layers(gp.Layers.Count()-1);
-	
-	AxisObject ao = get_ao(gl,nType);
-	
-	
-	return gl;
+	dataplotter.axis_from(AXIS_RIGHT,dFrom);
+	dataplotter.axis_from(AXIS_LEFT,dFrom);
+	dataplotter.axis_to(AXIS_RIGHT,dTo);
+	dataplotter.axis_to(AXIS_LEFT,dTo);
+	dataplotter.smart_axis_increment(AXIS_RIGHT);
+	dataplotter.smart_axis_increment(AXIS_LEFT);
 }
 
-
-/*
-int make_plot(GraphLayer gl,DataRange dr, string marker = "o", string linestyle = "-", DWORD color = 0)
+void xaxis_label_size(double dSize)
 {
-	//
-	//DataRange is for getting and putting data from and to a worksheet, matrix, and graph window
-	
-	
-	//nPlotID: 
-	//IDM_PLOT_LINE for line;
-	//IDM_PLOT_SCATTER for scatter;
-	//IDM_PLOT_LINESYMB for line + symbol.
-	
-	//marker: "None", "o"
-	//linestyle: "None", "-"
-	//color: "b"
-	
-	//Determine plot type
-	int nPlotID = IDM_PLOT_LINESYMB;
-	if(marker != "None" && linestyle != "None")
-		nPlotID = IDM_PLOT_LINESYMB;
-	else if(marker == "None" && linestyle != "None")
-		nPlotID = IDM_PLOT_LINE;
-	else if(marker != "None" && linestyle == "None")
-		nPlotID = IDM_PLOT_SCATTER;
-	
-	int nPlot = gl.AddPlot(dr,nPlotID);
-	//Convert RGB color in ocolor
-	DataPlot dp = gl.DataPlots(nPlot);
-	dp.SetColor(RGB2OCOLOR(color));
-	
-	
-	return 0;
+	dataplotter.axis_label_size(AXIS_BOTTOM,dSize);
 }
-int make_dr(Worksheet wks, int nCx=0, int nCy=0)
+void yaxis_label_size(double dSize)
 {
-	DataRange dr;
-	dr.Add(wks,nCx,"X");
-	dr.Add(wks,nCy,"Y");
-	return dr;
+	dataplotter.axis_label_size(AXIS_LEFT,dSize);
+	dataplotter.axis_label_size(AXIS_RIGHT,dSize);
 }
-*/
+void xaxis_label_numeric_format(int nFormat)
+{
+	dataplotter.axis_label_numeric_format(AXIS_BOTTOM, nFormat);
+	dataplotter.smart_axis_increment(AXIS_BOTTOM);
+}
+void yaxis_label_numeric_format(int nFormat)
+{
+	dataplotter.axis_label_numeric_format(AXIS_LEFT, nFormat);
+	dataplotter.axis_label_numeric_format(AXIS_RIGHT, nFormat);
+	dataplotter.smart_axis_increment(AXIS_LEFT);
+	dataplotter.smart_axis_increment(AXIS_RIGHT);
+}
+void xtitle(string strText)
+{
+	dataplotter.axis_title_text(AXIS_BOTTOM, strText);
+}
+void ytitle(string strText)
+{
+	dataplotter.axis_title_text(AXIS_LEFT, strText);
+	dataplotter.axis_title_text(AXIS_RIGHT, strText);
+}
+void xtitle_size(double dSize)
+{
+	dataplotter.axis_title_size(AXIS_BOTTOM,dSize);
+}
+void ytitle_size(double dSize)
+{
+	dataplotter.axis_title_size(AXIS_LEFT, dSize);
+	dataplotter.axis_title_size(AXIS_RIGHT, dSize);
+}
+void yaxis_color_automatic()
+{
+	dataplotter.axis_color_automatic(AXIS_LEFT);
+	dataplotter.axis_color_automatic(AXIS_RIGHT);
+}
+void yaxis_pos_offset_left(double dPosOffset)
+{
+	dataplotter.axis_pos_offset(AXIS_LEFT, dPosOffset);
+}
+void yaxis_pos_offset_right(double dPosOffset)
+{
+	dataplotter.axis_pos_offset(AXIS_RIGHT, dPosOffset);
+}
+void make_linesymb_plot(string sWksName, int nCx, int nCy)
+{
+	dataplotter.make_plot(sWksName,nCx,nCy,IDM_PLOT_LINESYMB);
+}
+void make_line_plot(string sWksName, int nCx, int nCy)
+{
+	dataplotter.make_plot(sWksName,nCx,nCy,IDM_PLOT_LINE);
+}
+void make_scatter_plot(string sWksName, int nCx, int nCy)
+{
+	dataplotter.make_plot(sWksName,nCx,nCy,IDM_PLOT_SCATTER);
+}
 
+void plot_marker_style(int nMarkerStyle)
+{
+	dataplotter.plot_marker_style(nMarkerStyle);
+}
+void plot_marker_size(double dMarkerSize)
+{
+	dataplotter.plot_marker_size(dMarkerSize);
+}
+void plot_marker_edge_color(int nR,int nG, int nB)
+{
+	DWORD dwColor = RGB2OCOLOR(RGB(nR,nG,nB));
+	dataplotter.plot_marker_edge_color(dwColor);
+}
+void plot_marker_edge_width(double dWidth)
+{
+	dataplotter.plot_marker_edge_width(dWidth);
+}
+void plot_marker_face_color(int nR,int nG, int nB)
+{
+	DWORD dwColor = RGB2OCOLOR(RGB(nR,nG,nB));
+	dataplotter.plot_marker_face_color(dwColor);
+}
+void plot_line_color(int nR,int nG, int nB)
+{
+	DWORD dwColor = RGB2OCOLOR(RGB(nR,nG,nB));
+	dataplotter.plot_line_color(dwColor);
+}
+void plot_line_style(int nLineStyle)
+{
+	dataplotter.plot_line_style(nLineStyle);
+}
+void plot_line_width(double dLineWidth)
+{
+	dataplotter.plot_line_width(dLineWidth);
+}
 int Plotter()
 {
 	//Important!
@@ -241,21 +202,41 @@ int Plotter()
 	
 	//gp.Layers.Count()
 	
-	DataPlotter dp1("try1");
+	/*
+	DataPlotter dp1("try3");
+	dp1.make_plot("[Experiment]Mass",0,11,IDM_PLOT_LINESYMB);
+	dp1.axis_to(AXIS_LEFT,11400000);
+	dp1.smart_axis_increment(AXIS_LEFT);
+	*/
+	
+	
+	/*
+	DataPlotter dp1("try2");
 	//dp1.add_layer("Right",0,LINK_STRAIGHT,0);
 	//dp1.select_layer(2);
 	
 	dp1.make_plot("[Experiment]Mass",0,11,IDM_PLOT_LINESYMB);
 	dp1.show_axis(AXIS_LEFT, true, true, true, TICK_OUT, TICK_OUT);
+	dp1.show_axis(AXIS_BOTTOM, true, true, true, TICK_OUT, TICK_OUT);
 	dp1.axis_label_size(AXIS_LEFT,15);
+	dp1.axis_label_size(AXIS_BOTTOM,15);
 	dp1.axis_title_size(AXIS_LEFT,20);
+	dp1.axis_title_size(AXIS_BOTTOM,20);
 	//dp1.axis_title_text(AXIS_LEFT,"%(?Y)");
 	dp1.axis_label_numeric_format(AXIS_LEFT,1);
 	dp1.axis_increment_by_ticks(AXIS_LEFT,7);
-	dp1.plot_line_color(SYSCOLOR_RED);
-	dp1.plot_marker_edge_color(SYSCOLOR_RED);
+	dp1.plot_line_color(SYSCOLOR_BLUE);
+	dp1.plot_marker_edge_color(SYSCOLOR_BLUE);
 	dp1.axis_color_automatic(AXIS_LEFT);
 	
+	
+	dp1.add_layer(AXIS_RIGHT, 0, LINK_STRAIGHT, 0);
+	dp1.make_plot("[Experiment]Mass",0,9,IDM_PLOT_LINESYMB);
+	dp1.plot_marker_edge_color(SYSCOLOR_RED);
+	dp1.axis_color_automatic(AXIS_RIGHT);
+	dp1.plot_marker_size(3);
+	dp1.axis_pos_offset(AXIS_RIGHT, 3);
+	*/
 	return 0;
 }
 
