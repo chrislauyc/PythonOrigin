@@ -20,21 +20,56 @@
 // system header file.
 
 #include <Origin.h>
-//#include <..\Originlab\graph_utils.h> 
-#include <E:\OneDrive - University of Utah\Anderson's lab\OriginC\graph_utils.h> 
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 //#pragma labtalk(0) // to disable OC functions for LT calling.
 
+
 ////////////////////////////////////////////////////////////////////////////////////
 // Include your own header files here.
-
+#include <..\Originlab\graph_utils.h>
+#include <..\originlab\fu_utils.h>
 #include "DataPlotter.h"
 ////////////////////////////////////////////////////////////////////////////////////
 // Start your functions here.
 
+
+//need these libraries at install
+//run.LoadOC(Originlab\\fu_utils.c);
+//run.loadoc(Originlab\\graph_utils.c, 16);
+
+
 DataPlotter dataplotter;
+
+void ImportASCII_Ex4()
+{
+    string fileName = GetOpenBox("*.csv");  // csv file browser
+    if( !fileName.IsFile())
+        return;
+    
+    // create a new worksheet
+    Worksheet wks;
+    wks.Create();
+    
+    // ascii import
+    ASCIMP ai;
+    initASCIMP(ai);  // initialize
+    ai.iAutoSubHeaderLines = 1;  // auto detect subheader line
+    ai.iDelimited = 1;  // use delimiter
+	ai.iDelimiter = ASCIMP_DELIM_COMMA;	// comma as delimiter
+	ai.iNonnumeric = 1; // NONNUMERIC_READ_AS_MISSING
+	// special quote symbol and remove it when import
+	ai.cQuote = '\"';
+	ai.flags |= AI_FLAG_REMOVE_QUOTES;
+    int nret = AscImpReadFileStruct(fileName, &ai, AIRF_USE_ASCIMP);
+    if(0 == nret )
+    {
+        // import
+        wks.ImportASCII(fileName, ai);
+    }   
+}
+
 
 void make_graph(string sGraphPageName)
 {
@@ -43,7 +78,11 @@ void make_graph(string sGraphPageName)
 	dataplotter.show_axis(AXIS_BOTTOM, true, true, true, TICK_OUT, TICK_OUT);
 	dataplotter.show_axis(AXIS_LEFT, true, true, true, TICK_OUT, TICK_OUT);
 }
-
+void graphpage_resize(double dWidth, double dHeight)
+{
+	//This doesn't work. Have to fit graph to layer manually.
+	//dataplotter.graphpage_resize(dWidth,dHeight);
+}
 void add_xlinked_layer_right()
 {
 	dataplotter.add_layer(AXIS_RIGHT,0,LINK_STRAIGHT,0);
@@ -108,6 +147,18 @@ void ytitle_size(double dSize)
 {
 	dataplotter.axis_title_size(AXIS_LEFT, dSize);
 	dataplotter.axis_title_size(AXIS_RIGHT, dSize);
+}
+void xaxis_color(int nR, int nG, int nB)
+{
+	DWORD dwColor = RGB2OCOLOR(RGB(nR,nG,nB));
+	dataplotter.axis_color(AXIS_BOTTOM,dwColor);
+	dataplotter.axis_color(AXIS_TOP,dwColor);
+}
+void yaxis_color(int nR, int nG, int nB)
+{
+	DWORD dwColor = RGB2OCOLOR(RGB(nR,nG,nB));
+	dataplotter.axis_color(AXIS_LEFT,dwColor);
+	dataplotter.axis_color(AXIS_RIGHT,dwColor);
 }
 void yaxis_color_automatic()
 {

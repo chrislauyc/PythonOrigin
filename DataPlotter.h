@@ -56,7 +56,8 @@ public:
 	void select_plot(int nPlotInd);
 	//add layer
 	void add_layer(int nAxisType, int nLinkTo, int nXAxisLink, int nYAxisLink);
-	
+	//****************Layer Settings*******************
+	void graphpage_resize(double dWidth, double dHeight);//This doesn't work
 	//****************Axis Settings********************
 	void show_axis(int nAxisType, bool bAxisOn, bool bLabels, bool bTitleOn, int nMajorTicks, int nMinorTicks);
 	//set axis range
@@ -79,6 +80,8 @@ public:
 	//set axis title
 	void axis_title_size(int nAxisType, double dSize);
 	void axis_title_text(int nAxisType, string strText);
+	//set axis color
+	void axis_color(int nAxisType,DWORD dwColor);
 	//set axis color same as data
 	void axis_color_automatic(int nAxisType);
 	//set axis position offset

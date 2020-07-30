@@ -25,7 +25,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////
 // Include your own header files here.
-#include <E:\OneDrive - University of Utah\Anderson's lab\OriginC\graph_utils.h> 
+#include <..\Originlab\graph_utils.h>
+
 #include "DataPlotter.h"
 #include <math.h>
 
@@ -63,7 +64,7 @@ DataPlotter::DataPlotter(string sGraphPageName)
 	gp = temp;
 	gp.Create();
 	gp.SetName(sGraphPageName);
-	gl = gp.Layers(0);
+	gl = gp.Layers(0);	
 }
 void DataPlotter::select_layer(int nLayerInd)
 {
@@ -110,6 +111,17 @@ void DataPlotter::add_layer(int nAxisType, int nLinkTo = 0, int nXAxisLink = LIN
 	//store the newest layer
 	gl = gp.Layers(nLayerInt);
 	
+}
+void DataPlotter::graphpage_resize(double dWidth, double dHeight)
+{
+	/*
+	tr.Root.Dimension.Width.dVal = dWidth;
+	tr.Root.Dimension.Height.dVal = dHeight;
+	
+	int nErr = gp.UpdateThemeIDs(tr.Root);// allows a tree with no theme ID to be used in ApplyFormat
+	if(nErr ==0)
+		gp.ApplyFormat(tr,true,true);
+	*/
 }
 void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool bLabels = true, bool bTitleOn = true, int nMajorTicks = TICK_OUT, int nMinorTicks = TICK_OUT)
 {
@@ -421,6 +433,35 @@ void DataPlotter::axis_title_text(int nAxisType, string strText)
 	}
 	upate_axis(tr, axis);
 }
+void DataPlotter::axis_color(int nAxisType,DWORD dwColor)
+{
+	Tree tr;
+		Axis axis = get_axis(nAxisType);
+		switch(nAxisType)
+		{
+		case AXIS_BOTTOM:
+			tr.Root.Ticks.BottomTicks.Color.nVal = dwColor;
+			tr.Root.Labels.BottomLabels.Color.nVal = dwColor;
+			tr.Root.Titles.BottomTitle.Color.nVal = dwColor;
+			break;
+		case AXIS_LEFT:
+			tr.Root.Ticks.LeftTicks.Color.nVal = dwColor;
+			tr.Root.Labels.LeftLabels.Color.nVal = dwColor;
+			tr.Root.Titles.LeftTitle.Color.nVal = dwColor;
+			break;
+		case AXIS_TOP:
+			tr.Root.Ticks.TopTicks.Color.nVal = dwColor;
+			tr.Root.Labels.TopLabels.Color.nVal = dwColor;
+			tr.Root.Titles.TopTitle.Color.nVal = dwColor;
+			break;
+		case AXIS_RIGHT:
+			tr.Root.Ticks.RightTicks.Color.nVal = dwColor;
+			tr.Root.Labels.RightLabels.Color.nVal = dwColor;
+			tr.Root.Titles.RightTitle.Color.nVal = dwColor;
+			break;
+		}
+		upate_axis(tr, axis);
+}
 void DataPlotter::axis_color_automatic(int nAxisType)
 {
 	Tree tr;
@@ -546,6 +587,7 @@ void DataPlotter::plot_marker_edge_color(DWORD dwColor)
 	Tree tr;
 	//tr = dp.GetFormat(FPB_ALL, FOB_ALL, true, true);
 	//out_tree(tr);
+	tr.Root.Symbol.Interior.nVal = 1;//interior type
 	tr.Root.Symbol.EdgeColor.nVal = dwColor;
 	int nErr = dp.UpdateThemeIDs(tr.Root);
 	if(nErr ==0)
@@ -556,6 +598,7 @@ void DataPlotter::plot_marker_edge_width(double dWidth)
 	Tree tr;
 	//tr = dp.GetFormat(FPB_ALL, FOB_ALL, true, true);
 	//out_tree(tr);
+	tr.Root.Symbol.Interior.nVal = 1;//interior type
 	tr.Root.Symbol.EdgeWidth.dVal = dWidth;
 	int nErr = dp.UpdateThemeIDs(tr.Root);
 	if(nErr ==0)
@@ -566,6 +609,7 @@ void DataPlotter::plot_marker_face_color(DWORD dwColor)
 	Tree tr;
 	//tr = dp.GetFormat(FPB_ALL, FOB_ALL, true, true);
 	//out_tree(tr);
+	tr.Root.Symbol.Interior.nVal = 1;//interior type
 	tr.Root.Symbol.FillColor.nVal = dwColor;
 	int nErr = dp.UpdateThemeIDs(tr.Root);
 	if(nErr ==0)
