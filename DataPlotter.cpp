@@ -57,7 +57,9 @@ void DataPlotter::upate_axis(Tree tr, Axis axis)
 	int nErr = axis.UpdateThemeIDs(tr.Root);// allows a tree with no theme ID to be used in ApplyFormat
 	if(nErr ==0)
 		axis.ApplyFormat(tr,true,true);
+	gl.GetPage().Refresh();
 }
+
 DataPlotter::DataPlotter(string sGraphPageName)
 {
 	GraphPage temp;
@@ -494,25 +496,26 @@ void DataPlotter::axis_color_automatic(int nAxisType)
 
 void DataPlotter::axis_pos_offset(int nAxisType, double dPosOffset)
 {
+	//dPosOffset is a percentage
 	AxisObject ao;
+	//printf("%f",dPosOffset);
 	switch (nAxisType)
 	{
 	case AXIS_BOTTOM:
 		ao = gl.XAxis.AxisObjects(AXISOBJPOS_AXIS_FIRST);
-		ao.SetPosition(AXIS_POS_REAL,ao.GetPosition()-dPosOffset);
+		ao.SetPosition(1,dPosOffset);
 		break;
 	case AXIS_LEFT:
 		ao = gl.YAxis.AxisObjects(AXISOBJPOS_AXIS_FIRST);
-		ao.SetPosition(AXIS_POS_REAL,ao.GetPosition()-dPosOffset);
+		ao.SetPosition(1,dPosOffset);
 		break;
 	case AXIS_TOP:
 		ao = gl.XAxis.AxisObjects(AXISOBJPOS_AXIS_SECOND);
-		ao.SetPosition(AXIS_POS_REAL,ao.GetPosition()+dPosOffset);
+		ao.SetPosition(1,dPosOffset);
 		break;
 	case AXIS_RIGHT:
-		
 		ao = gl.YAxis.AxisObjects(AXISOBJPOS_AXIS_SECOND);
-		ao.SetPosition(AXIS_POS_REAL,ao.GetPosition()+dPosOffset);
+		ao.SetPosition(1,dPosOffset);
 		break;
 	}
 	
@@ -681,3 +684,4 @@ void DataPlotter::add_worksheet_from_csv(string strFileName, string strWksName)
 		}   
     }
 }
+
