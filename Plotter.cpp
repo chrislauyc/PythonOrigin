@@ -155,14 +155,20 @@ void yaxis_pos_offset_right(double dPosOffset)
 void make_linesymb_plot(string sWksName, int nCx, int nCy)
 {
 	dataplotter.make_plot(sWksName,nCx,nCy,IDM_PLOT_LINESYMB);
+	dataplotter.smart_axis_increment(AXIS_BOTTOM);
+	dataplotter.smart_axis_increment(AXIS_LEFT);
 }
 void make_line_plot(string sWksName, int nCx, int nCy)
 {
 	dataplotter.make_plot(sWksName,nCx,nCy,IDM_PLOT_LINE);
+	dataplotter.smart_axis_increment(AXIS_BOTTOM);
+	dataplotter.smart_axis_increment(AXIS_LEFT);
 }
 void make_scatter_plot(string sWksName, int nCx, int nCy)
 {
 	dataplotter.make_plot(sWksName,nCx,nCy,IDM_PLOT_SCATTER);
+	dataplotter.smart_axis_increment(AXIS_BOTTOM);
+	dataplotter.smart_axis_increment(AXIS_LEFT);
 }
 
 void plot_marker_style(int nMarkerStyle)
