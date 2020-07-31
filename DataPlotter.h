@@ -47,6 +47,7 @@ public:
 	GraphPage gp; //Holds the current graph page object
 	GraphLayer gl; //Holds the current graph layer object
 	DataPlot dp; //Holds the current dataplot object
+	WorksheetPage wksPg;//Holds the current worksheet page
 	//#############Member Functions#####################
 	//Constructor takes in a new name for graph page
 	DataPlotter(string sGraphPageName);
@@ -56,6 +57,7 @@ public:
 	void select_plot(int nPlotInd);
 	//add layer
 	void add_layer(int nAxisType, int nLinkTo, int nXAxisLink, int nYAxisLink);
+	
 	//****************Layer Settings*******************
 	void graphpage_resize(double dWidth, double dHeight);//This doesn't work
 	//****************Axis Settings********************
@@ -100,6 +102,8 @@ public:
 	void plot_line_color(DWORD dwColor);
 	void plot_line_style(int nLineStyle);
 	void plot_line_width(double dLineWidth);
-
+	//****************Worksheet*************************
+	void make_worksheetpage(string strWksPgName);
+	void add_worksheet_from_csv(string strFileName, string strWksName);
 	
 };

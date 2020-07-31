@@ -42,35 +42,14 @@
 
 DataPlotter dataplotter;
 
-void ImportASCII_Ex4()
+void make_worksheetpage(string strWksPgName)
 {
-    string fileName = GetOpenBox("*.csv");  // csv file browser
-    if( !fileName.IsFile())
-        return;
-    
-    // create a new worksheet
-    Worksheet wks;
-    wks.Create();
-    
-    // ascii import
-    ASCIMP ai;
-    initASCIMP(ai);  // initialize
-    ai.iAutoSubHeaderLines = 1;  // auto detect subheader line
-    ai.iDelimited = 1;  // use delimiter
-	ai.iDelimiter = ASCIMP_DELIM_COMMA;	// comma as delimiter
-	ai.iNonnumeric = 1; // NONNUMERIC_READ_AS_MISSING
-	// special quote symbol and remove it when import
-	ai.cQuote = '\"';
-	ai.flags |= AI_FLAG_REMOVE_QUOTES;
-    int nret = AscImpReadFileStruct(fileName, &ai, AIRF_USE_ASCIMP);
-    if(0 == nret )
-    {
-        // import
-        wks.ImportASCII(fileName, ai);
-    }   
+	dataplotter.make_worksheetpage(strWksPgName);
 }
-
-
+void add_worksheet_from_csv(string strFileName, string strWksName)
+{
+	dataplotter.add_worksheet_from_csv(strFileName, strWksName);
+}
 void make_graph(string sGraphPageName)
 {
 	DataPlotter new_dp(sGraphPageName);
