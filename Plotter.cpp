@@ -88,6 +88,18 @@ void yrange(double dFrom, double dTo)
 	dataplotter.smart_axis_increment(AXIS_LEFT);
 }
 
+void axis_rescale_type(int nAxisType, int nType) //Linear: 0, see origin lab
+{
+	dataplotter.axis_rescale_type(nAxisType,nType);
+}
+void axis_rescale(int nAxisType, int nRescale) //Fixed: 0, see origin lab
+{
+	dataplotter.axis_rescale(nAxisType,nRescale);
+}
+void axis_rescale_margin(int nAxisType, double dResMargin)//default: 8%
+{
+	dataplotter.axis_rescale_margin(nAxisType,dResMargin);
+}
 void xaxis_label_size(double dSize)
 {
 	dataplotter.axis_label_size(AXIS_BOTTOM,dSize);
