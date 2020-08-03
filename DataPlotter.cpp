@@ -52,7 +52,7 @@ Axis DataPlotter::get_axis(int nAxisType)
 	}
 	return axis;
 }
-void DataPlotter::upate_axis(Tree tr, Axis axis)
+void DataPlotter::update_axis(Tree tr, Axis axis)
 {
 	int nErr = axis.UpdateThemeIDs(tr.Root);// allows a tree with no theme ID to be used in ApplyFormat
 	if(nErr ==0)
@@ -67,6 +67,8 @@ DataPlotter::DataPlotter(string sGraphPageName)
 	gp.Create();
 	gp.SetName(sGraphPageName);
 	gl = gp.Layers(0);	
+	x_linked = false;
+	y_linked = false;
 }
 void DataPlotter::select_layer(int nLayerInd)
 {
@@ -157,7 +159,7 @@ void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool
 		tr.Root.Titles.RightTitle.AddNode("Show").nVal = bTitleOn ? 1:0;
 		break;
 	}
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 	//tr = gl.YAxis.GetFormat(FPB_ALL, FOB_ALL, true, true);
 	//out_tree(tr);
 }
@@ -211,16 +213,48 @@ void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool
 void DataPlotter::axis_from(int nAxisType, double dFrom)
 {
 	Tree tr;
-	Axis axis = get_axis(nAxisType);
-	tr.Root.Scale.From.dVal = dFrom;
-	upate_axis(tr, axis);
+	Axis axis;
+	GraphLayer current_gl = gl;
+	if(x_linked || y_linked)
+	{
+		for(int i=0;i < gp.Layers.Count();i++)
+		{
+			select_layer(i);
+			axis = get_axis(nAxisType);
+			tr.Root.Scale.From.dVal = dFrom;
+			update_axis(tr,axis);
+		}
+	}
+	else
+	{
+		axis = get_axis(nAxisType);
+		tr.Root.Scale.From.dVal = dFrom;
+		update_axis(tr, axis);
+	}
+	gl = current_gl;
 }
 void DataPlotter::axis_to(int nAxisType, double dTo)
 {
 	Tree tr;
-	Axis axis = get_axis(nAxisType);
-	tr.Root.Scale.To.dVal = dTo;
-	upate_axis(tr, axis);
+	Axis axis;
+	GraphLayer current_gl = gl;
+	if(x_linked || y_linked)
+	{
+		for(int i=0;i < gp.Layers.Count();i++)
+		{
+			select_layer(i);
+			axis = get_axis(nAxisType);
+			tr.Root.Scale.To.dVal = dTo;
+			update_axis(tr,axis);
+		}
+	}
+	else
+	{
+		axis = get_axis(nAxisType);
+		tr.Root.Scale.To.dVal = dTo;
+		update_axis(tr, axis);
+	}
+	gl = current_gl;
 }
 
 
@@ -232,7 +266,7 @@ void DataPlotter::axis_increment_by_value(int nAxisType, double dIncrementBy)
 	Axis axis = get_axis(nAxisType);	
 	tr.Root.Scale.Value.dVal = dIncrementBy;
 	tr.Root.Scale.IncrementBy.nVal = 0; //increment by count
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 }
 void DataPlotter::axis_increment_by_ticks(int nAxisType, int nMajTicksCount)
 {
@@ -244,7 +278,7 @@ void DataPlotter::axis_increment_by_ticks(int nAxisType, int nMajTicksCount)
 	tr.Root.Scale.MajorTicksCount.nVal = nMajTicksCount;
 
 	tr.Root.Scale.IncrementBy.nVal = 1; //increment by count
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 	
 }
 void DataPlotter::smart_axis_increment(int nAxisType)
@@ -302,7 +336,7 @@ void DataPlotter::smart_axis_increment(int nAxisType)
 		}
 			break;
 	}
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 	
 	
 
@@ -312,18 +346,20 @@ void DataPlotter::smart_axis_increment(int nAxisType)
 void DataPlotter::axis_rescale_type(int nAxisType, int nType)
 {
 	//Type
+	//linear, log10, ...
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
 	tr.Root.Scale.Type.nVal = nType;	
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 }
 void DataPlotter::axis_rescale(int nAxisType, int nRescale)
 {
 	//Rescale
+	//Fixed, Normal, Auto, ...
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
 	tr.Root.Scale.Rescale.nVal = nRescale;	
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 }
 void DataPlotter::axis_rescale_margin(int nAxisType, double dResMargin)
 {
@@ -331,7 +367,7 @@ void DataPlotter::axis_rescale_margin(int nAxisType, double dResMargin)
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
 	tr.Root.Scale.RescaleMargin.dVal = dResMargin;	
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 }
 
 
@@ -362,7 +398,7 @@ void DataPlotter::axis_label_size(int nAxisType, double dSize)
 		tr.Root.Labels.RightLabels.Font.Size.dVal = dSize;
 		break;
 	}
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 	
 }
 void DataPlotter::axis_label_numeric_format(int nAxisType, int nFormat)
@@ -387,7 +423,7 @@ void DataPlotter::axis_label_numeric_format(int nAxisType, int nFormat)
 		tr.Root.Labels.RightLabels.DecimalPlaces.nVal = 3;
 		break;
 	}
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 	//tr = dp.GetFormat(FPB_ALL, FOB_ALL, true, true);
 	//out_tree(tr);
 	
@@ -411,7 +447,7 @@ void DataPlotter::axis_title_size(int nAxisType, double dSize)
 		tr.Root.Titles.RightTitle.Font.Size.dVal = dSize;
 		break;
 	}
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 }
 void DataPlotter::axis_title_text(int nAxisType, string strText)
 {
@@ -433,7 +469,7 @@ void DataPlotter::axis_title_text(int nAxisType, string strText)
 		tr.Root.Titles.RightTitle.AddNode("Text").strVal = strText;
 		break;
 	}
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 }
 void DataPlotter::axis_color(int nAxisType,DWORD dwColor)
 {
@@ -462,7 +498,7 @@ void DataPlotter::axis_color(int nAxisType,DWORD dwColor)
 			tr.Root.Titles.RightTitle.Color.nVal = dwColor;
 			break;
 		}
-		upate_axis(tr, axis);
+		update_axis(tr, axis);
 }
 void DataPlotter::axis_color_automatic(int nAxisType)
 {
@@ -491,7 +527,7 @@ void DataPlotter::axis_color_automatic(int nAxisType)
 		tr.Root.Titles.RightTitle.Color.nVal = INDEX_COLOR_AUTOMATIC;
 		break;
 	}
-	upate_axis(tr, axis);
+	update_axis(tr, axis);
 }
 
 void DataPlotter::axis_pos_offset(int nAxisType, double dPosOffset)

@@ -41,13 +41,15 @@ private:
 	//get axis options: AXIS_BOTTOM, AXIS_LEFT, AXIS_TOP, AXIS_RIGHT
 	Axis get_axis(int nAxisType);
 	//use the format tree to update format
-	void upate_axis(Tree tr, Axis axis);
+	void update_axis(Tree tr, Axis axis);
 public:
 	//##############Member data########################
 	GraphPage gp; //Holds the current graph page object
 	GraphLayer gl; //Holds the current graph layer object
 	DataPlot dp; //Holds the current dataplot object
 	WorksheetPage wksPg;//Holds the current worksheet page
+	bool x_linked; //Important! Currently, it only supports either linking all of the layers or not.
+	bool y_linked;
 	//#############Member Functions#####################
 	//Constructor takes in a new name for graph page
 	DataPlotter(string sGraphPageName);
