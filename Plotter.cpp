@@ -57,6 +57,10 @@ void make_graph(string sGraphPageName)
 	dataplotter.show_axis(AXIS_BOTTOM, true, true, true, TICK_OUT, TICK_OUT);
 	dataplotter.show_axis(AXIS_LEFT, true, true, true, TICK_OUT, TICK_OUT);
 }
+void select_layer(int nLayerInd)
+{
+	dataplotter.select_layer(nLayerInd);
+}
 void graphpage_resize(double dWidth, double dHeight)
 {
 	//This doesn't work. Have to fit graph to layer manually.
