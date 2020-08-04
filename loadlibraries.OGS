@@ -1,1 +1,0 @@
-run.loadoc(E:\OneDrive - University of Utah\Anderson's lab\OriginC\Py2OriginC\Plotter.cpp,16);//Load all dependent Origin C files by scanning for .h files in the OC file being loaded.
