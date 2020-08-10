@@ -63,6 +63,9 @@ public:
 	//****************Layer Settings*******************
 	void graphpage_resize(double dWidth, double dHeight);//This doesn't work
 	//****************Axis Settings********************
+	void display_axis_tree(int nAxisType);	
+	void add_reflines(int nAxisType, string strReflines);
+	void reflines_fill
 	void show_axis(int nAxisType, bool bAxisOn, bool bLabels, bool bTitleOn, int nMajorTicks, int nMinorTicks);
 	//set axis range
 	void axis_from(int nAxisType, double dFrom);

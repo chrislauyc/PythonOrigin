@@ -66,6 +66,18 @@ void graphpage_resize(double dWidth, double dHeight)
 	//This doesn't work. Have to fit graph to layer manually.
 	//dataplotter.graphpage_resize(dWidth,dHeight);
 }
+void display_axis_tree(int nAxisType)
+{
+	dataplotter.display_axis_tree(nAxisType);
+}
+void add_reflines_ver(string strReflines)
+{
+	dataplotter.add_reflines(AXIS_BOTTOM,strReflines);
+}
+void add_reflines_hor(string strReflines)
+{
+	dataplotter.add_reflines(AXIS_LEFT,strReflines);
+}
 void add_xlinked_layer_right()
 {
 	dataplotter.add_layer(AXIS_RIGHT,0,LINK_STRAIGHT,0);

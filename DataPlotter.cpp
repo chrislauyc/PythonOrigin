@@ -127,6 +127,58 @@ void DataPlotter::graphpage_resize(double dWidth, double dHeight)
 		gp.ApplyFormat(tr,true,true);
 	*/
 }
+void DataPlotter::display_axis_tree(int nAxisType)
+{
+	Tree tr;
+	Axis axis = get_axis(nAxisType);
+	tr = axis.GetFormat(FPB_ALL, FOB_ALL, true, true);
+	out_tree(tr);
+}
+
+int count_elements(string strInput)
+{
+	//counts the number of elements separated by white space in a string
+	int nEle = 1;
+	for(int i = 0; i < strlen(strInput); i++)
+	{
+		if(strInput[i] == ' ')
+			nEle++;
+	}
+	return nEle;
+}
+void DataPlotter::add_reflines(int nAxisType, string strReflines)
+{
+	//add the reflines
+	Tree tr;
+	Axis axis = get_axis(nAxisType);
+	tr.Root.RefLines.Dataset.strVal = strReflines;
+	int nEle = count_elements(strReflines);
+	tr.Root.RefLines.Count.nVal = nEle+2;//number of reflines including beginning and end
+	update_axis(tr, axis);
+	
+	//switch show to true
+	axis = get_axis(nAxisType);
+	tr = axis.GetFormat(FPB_ALL, FOB_ALL, true, true);
+	
+	
+	TreeNode refline_parent;
+	refline_parent = tr.Root.Reflines.Reflines;
+	Collection<TreeNode> refline_nodes; //collection to store reflines
+	refline_parent.Children;
+	
+	
+	refline_nodes = refline_parent.Children;
+	int nReflines = refline_nodes.Count();
+
+	for(int i = 0; i < nReflines; i++)
+	{
+		TreeNode refline = refline_nodes.Item(i);
+		tr.Root.RefLines.Reflines.GetNode(refline.tagName).GetNode("Line").GetNode("Show").nVal = 1;
+	}
+	tr.Root.RefLines.Reflines.GetNode("RefLine1").GetNode("Fill").GetNode("Next").nVal = 2;
+	update_axis(tr, axis);
+	
+}
 void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool bLabels = true, bool bTitleOn = true, int nMajorTicks = TICK_OUT, int nMinorTicks = TICK_OUT)
 {
 	Tree tr;
