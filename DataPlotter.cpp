@@ -146,8 +146,11 @@ int count_elements(string strInput)
 	}
 	return nEle;
 }
+
 void DataPlotter::add_reflines(int nAxisType, string strReflines)
 {
+	GraphLayer current_gl = gl; //hold on to the current graph layer
+	select_layer(0); //use the first layer
 	//add the reflines
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
@@ -164,20 +167,41 @@ void DataPlotter::add_reflines(int nAxisType, string strReflines)
 	TreeNode refline_parent;
 	refline_parent = tr.Root.Reflines.Reflines;
 	Collection<TreeNode> refline_nodes; //collection to store reflines
-	refline_parent.Children;
 	
 	
 	refline_nodes = refline_parent.Children;
 	int nReflines = refline_nodes.Count();
-
+	
 	for(int i = 0; i < nReflines; i++)
 	{
 		TreeNode refline = refline_nodes.Item(i);
 		tr.Root.RefLines.Reflines.GetNode(refline.tagName).GetNode("Line").GetNode("Show").nVal = 1;
 	}
-	tr.Root.RefLines.Reflines.GetNode("RefLine1").GetNode("Fill").GetNode("Next").nVal = 2;
+	
+	//tr.Root.RefLines.Reflines.GetNode("RefLine1").GetNode("Fill").GetNode("Next").nVal = 2;
+	update_axis(tr, axis);
+	gl = current_gl; //set the graph layer back to original
+}
+void DataPlotter::refline_fill(int nAxisType, int nRefLineIndex,  int nFillToIndex, DWORD dwColor)
+{
+	GraphLayer current_gl = gl; //hold on to the current graph layer
+	select_layer(0); //use the first layer
+	
+	Tree tr;
+	Axis axis = get_axis(nAxisType);
+	tr = axis.GetFormat(FPB_ALL, FOB_ALL, true, true);
+	
+	TreeNode refline_parent;
+	refline_parent = tr.Root.Reflines.Reflines;
+	Collection<TreeNode> refline_nodes; //collection to store reflines
+	refline_nodes = refline_parent.Children; //Get the children nodes
+	int nReflines = refline_nodes.Count(); //Count the children. Use this to check if error
+	TreeNode refline = refline_nodes.Item(nRefLineIndex); //get the refline object
+	tr.Root.RefLines.Reflines.GetNode(refline.tagName).GetNode("Fill").GetNode("Next").nVal = nFillToIndex; //Set the fill to index
+	tr.Root.RefLines.Reflines.GetNode(refline.tagName).GetNode("Fill").GetNode("Color").nVal = dwColor; // set the color of the fill
 	update_axis(tr, axis);
 	
+	gl = current_gl; //set the graph layer back to original
 }
 void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool bLabels = true, bool bTitleOn = true, int nMajorTicks = TICK_OUT, int nMinorTicks = TICK_OUT)
 {
@@ -266,9 +290,12 @@ void DataPlotter::axis_from(int nAxisType, double dFrom)
 {
 	Tree tr;
 	Axis axis;
-	GraphLayer current_gl = gl;
+	GraphLayer current_gl = gl; //store the active graph layer
 	if(x_linked || y_linked)
 	{
+		//go through each graph layer and change the range
+		//this is because for some reasons not all layers will update the range
+		//when being displayed. 
 		for(int i=0;i < gp.Layers.Count();i++)
 		{
 			select_layer(i);

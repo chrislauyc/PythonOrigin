@@ -78,6 +78,16 @@ void add_reflines_hor(string strReflines)
 {
 	dataplotter.add_reflines(AXIS_LEFT,strReflines);
 }
+void refline_fill_ver(int nRefLineIndex,  int nFillToIndex, int nR, int nG, int nB)
+{
+	DWORD dwColor = RGB2OCOLOR(RGB(nR,nG,nB));
+	dataplotter.refline_fill(AXIS_BOTTOM, nRefLineIndex, nFillToIndex, dwColor);
+}
+void refline_fill_hor(int nRefLineIndex,  int nFillToIndex, int nR, int nG, int nB)
+{
+	DWORD dwColor = RGB2OCOLOR(RGB(nR,nG,nB));
+	dataplotter.refline_fill(AXIS_LEFT, nRefLineIndex, nFillToIndex, dwColor);
+}
 void add_xlinked_layer_right()
 {
 	dataplotter.add_layer(AXIS_RIGHT,0,LINK_STRAIGHT,0);

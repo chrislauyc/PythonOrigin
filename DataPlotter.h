@@ -50,6 +50,7 @@ public:
 	WorksheetPage wksPg;//Holds the current worksheet page
 	bool x_linked; //Important! Currently, it only supports either linking all of the layers or not.
 	bool y_linked;
+	
 	//#############Member Functions#####################
 	//Constructor takes in a new name for graph page
 	DataPlotter(string sGraphPageName);
@@ -65,7 +66,7 @@ public:
 	//****************Axis Settings********************
 	void display_axis_tree(int nAxisType);	
 	void add_reflines(int nAxisType, string strReflines);
-	void reflines_fill
+	void refline_fill(int nAxisType, int nRefLineIndex,  int nFillToIndex, DWORD dwColor);
 	void show_axis(int nAxisType, bool bAxisOn, bool bLabels, bool bTitleOn, int nMajorTicks, int nMinorTicks);
 	//set axis range
 	void axis_from(int nAxisType, double dFrom);
