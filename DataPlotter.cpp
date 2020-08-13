@@ -62,10 +62,13 @@ void DataPlotter::update_axis(Tree tr, Axis axis)
 
 DataPlotter::DataPlotter(string sGraphPageName)
 {
-	GraphPage temp;
+	GraphPage temp(sGraphPageName);
+	if(!temp)//if the graphpage with the name doesn't exists
+	{
+		temp.Create();
+		temp.SetName(sGraphPageName);
+	}
 	gp = temp;
-	gp.Create();
-	gp.SetName(sGraphPageName);
 	gl = gp.Layers(0);	
 	x_linked = false;
 	y_linked = false;
@@ -341,7 +344,6 @@ void DataPlotter::axis_increment_by_value(int nAxisType, double dIncrementBy)
 {
 	Tree tr;
 	//tr = gl.YAxis.GetFormat(FPB_ALL, FOB_ALL, true, true);
-	
 	Axis axis = get_axis(nAxisType);	
 	tr.Root.Scale.Value.dVal = dIncrementBy;
 	tr.Root.Scale.IncrementBy.nVal = 0; //increment by count
@@ -381,7 +383,8 @@ void DataPlotter::smart_axis_increment(int nAxisType)
 	else if(diff/dIncrementBy >= 9)
 		dIncrementBy = dIncrementBy*2;
 	axis_increment_by_value(nAxisType,dIncrementBy);
-	
+	//need to get the tree format again!!!
+	tr = axis.GetFormat(FPB_ALL, FOB_ALL, true, true);
 	//automatically determine the decimal places.
 	int nDigits = abs(floor(log10(dTo))-floor(log10(dIncrementBy)));
 	switch(nAxisType)
