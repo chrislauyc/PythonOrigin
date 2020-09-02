@@ -57,9 +57,22 @@ void make_graph(string sGraphPageName)
 	dataplotter.show_axis(AXIS_BOTTOM, true, true, true, TICK_OUT, TICK_OUT);
 	dataplotter.show_axis(AXIS_LEFT, true, true, true, TICK_OUT, TICK_OUT);
 }
+void show_axis(int nAxisType)
+{
+	//nAxisType: AXIS_TOP, AXIS_BOTTOM, AXIS_LEFT, AXIES_RIGHT
+	dataplotter.show_axis(nAxisType,true,true,true,TICK_OUT,TICK_OUT);
+}
+void select_graphpage(string sGraphPageName)
+{
+	dataplotter.select_graphpage(sGraphPageName);
+}
 void select_layer(int nLayerInd)
 {
 	dataplotter.select_layer(nLayerInd);
+}
+void select_plot(int nPlotInd)
+{
+	dataplotter.select_plot(nPlotInd);
 }
 void graphpage_resize(double dWidth, double dHeight)
 {
@@ -113,7 +126,16 @@ void yrange(double dFrom, double dTo)
 	dataplotter.smart_axis_increment(AXIS_RIGHT);
 	dataplotter.smart_axis_increment(AXIS_LEFT);
 }
-
+void xsmart_axis_increment()
+{
+	dataplotter.smart_axis_increment(AXIS_LEFT);
+	dataplotter.smart_axis_increment(AXIS_RIGHT);
+}
+void ysmart_axis_increment()
+{
+	dataplotter.smart_axis_increment(AXIS_TOP);
+	dataplotter.smart_axis_increment(AXIS_BOTTOM);
+}
 void axis_rescale_type(int nAxisType, int nType) //Linear: 0, see origin lab
 {
 	dataplotter.axis_rescale_type(nAxisType,nType);
@@ -160,7 +182,7 @@ void xtitle_size(double dSize)
 {
 	dataplotter.axis_title_size(AXIS_BOTTOM,dSize);
 }
-void ytitle_size(double dSize)
+void ytitle_size(double dSize) 
 {
 	dataplotter.axis_title_size(AXIS_LEFT, dSize);
 	dataplotter.axis_title_size(AXIS_RIGHT, dSize);

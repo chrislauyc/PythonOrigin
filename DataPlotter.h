@@ -54,6 +54,7 @@ public:
 	//#############Member Functions#####################
 	//Constructor takes in a new name for graph page
 	DataPlotter(string sGraphPageName);
+	void select_graphpage(string sGraphPageName);
 	//Use layer index to set the current graph layer contained in gl
 	void select_layer(int nLayerInd);
 	//Use the dataplot index to set the current dataplot contained in dp

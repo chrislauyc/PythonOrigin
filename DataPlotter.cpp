@@ -73,6 +73,19 @@ DataPlotter::DataPlotter(string sGraphPageName)
 	x_linked = false;
 	y_linked = false;
 }
+void DataPlotter::select_graphpage(string sGraphPageName)
+{
+	GraphPage temp(sGraphPageName);
+	if(!temp)//if the graphpage with the name doesn't exists
+	{
+		temp.Create();
+		temp.SetName(sGraphPageName);
+	}
+	gp = temp;
+	gl = gp.Layers(0);	
+	x_linked = false;
+	y_linked = false;
+}
 void DataPlotter::select_layer(int nLayerInd)
 {
 	if(nLayerInd < gp.Layers.Count())
