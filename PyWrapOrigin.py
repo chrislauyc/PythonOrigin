@@ -4,46 +4,6 @@ import time
 import os
 import numpy as np
 import pandas as pd
-def connect_to_origin():
-    # Connect to Origin client
-    # OriginExt.Application() forces a new connection
-    origin = OriginExt.ApplicationSI()
-    origin.Visible = origin.MAINWND_SHOW # Make session visible
-    # Session can be later closed using origin.Exit()
-    # Close previous project and make a new one
-    # origin.NewProject()
-    # Wait for origin to compile
-    # https://www.originlab.com/doc/LabTalk/ref/Second-cmd#-poc.3B_Pause_up_to_the_specified_number_of_seconds_to_wait_for_Origin_OC_startup_compiling_to_finish
-    origin.Execute("sec -poc 3.5")
-    time.sleep(3.5)
-    #get path of this file
-    folder_path = os.getcwd()
-    #build the path to the origin C code
-    code_path = os.path.join(folder_path,'Plotter.cpp')
-    #run a labtalk command to load and compile the origin C code. See https://www.originlab.com/doc/LabTalk/ref/Run-obj
-    origin.Execute('run.loadoc({},16);'.format(code_path))
-    #wait for it to compile
-    time.sleep(3.5)
-    
-    return origin
-def disconnect_from_origin(origin):
-    origin.Exit()
-def get_origin_version(origin):
-    # Get origin version
-    # Origin 2015 9.2xn
-    # Origin 2016 9.3xn
-    # Origin 2017 9.4xn
-    # Origin 2018 >= 9.50n and < 9.55n
-    # Origin 2018b >= 9.55n
-    # Origin 2019 >= 9.60n and < 9.65n (Fall 2019)
-    # Origin 2019b >= 9.65n (Spring 2020)
-    return origin.GetLTVar("@V")
-def save_project(origin,project_name,full_path):
-    # File ending is automatically added by origin
-    project_name = project_name.replace('.opju','').replace('.opj','')
-    origin.Execute("save " + os.path.join(full_path,project_name))
-
-
 
 # =============================================================================
 # below are the python wrappers for functions written in originC
