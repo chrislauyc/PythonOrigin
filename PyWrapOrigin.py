@@ -124,7 +124,7 @@ class PyWrapOrigin():
         #get path of this file
         folder_path = os.getcwd()
         #build the path to the origin C code
-        code_path = os.path.join(folder_path,'Plotter.cpp')
+        code_path = os.path.join(folder_path,'OriginC','Plotter.cpp')
         #run a labtalk command to load and compile the origin C code. See https://www.originlab.com/doc/LabTalk/ref/Run-obj
         origin.Execute('run.loadoc({},16);'.format(code_path))
         #wait for it to compile
