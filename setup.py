@@ -11,9 +11,13 @@ setuptools.setup(name='PyWrapOrigin',
         author='Chris Lau',
         author_email='chrislyc.lau@gmail.com',
         packages=setuptools.find_packages(),
+        py_modules=['PyWrapOrigin'],
+        #scripts=['PyWrapOrigin/PyWrapOrigin.py'],
         classifiers=[
             'Programming Language :: Python :: 3',
             'License :: OSI Approved :: MIT License',
             'Operating System :: Microsoft :: Windows'
             ]
         )
+
+#have to run ```pip install .```

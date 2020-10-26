@@ -159,6 +159,8 @@ class PyWrapOrigin():
 class WorkSheet():
     #this class will make and destroy worksheets
     #it will also enable data transfer as a dataframe
+    
+    #need a way to obtain worksheet by name
     def __init__(self,wb,ws,origin):
         self.origin = origin
         self.wb = wb
@@ -247,6 +249,8 @@ class GraphLayer(GraphObjectBase):
     def __init__(self,gp,gl,origin):
         #new layer will be made whenever get_layer in GraphPage is called.
         #will get attributes stored in the internal origin objects on demand.
+        
+        #need to autoscale
         GraphObjectBase.__init__(self)
         self.origin = origin
         self.gp = gp
