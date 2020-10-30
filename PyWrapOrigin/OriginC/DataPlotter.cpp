@@ -80,25 +80,38 @@ void DataPlotter::select_graphpage(string sGraphPageName)
 	{
 		temp.Create();
 		temp.SetName(sGraphPageName);
+		printf("Created new graphpage");
 	}
 	gp = temp;
 	gl = gp.Layers(0);	
 	x_linked = false;
 	y_linked = false;
+	printf("Graphpage selected: %s",sGraphPageName);
 }
 void DataPlotter::select_layer(int nLayerInd)
 {
 	if(nLayerInd < gp.Layers.Count())
+	{
 		gl = gp.Layers(nLayerInd);
+		printf("Layer selected: %d",nLayerInd);
+	}
 	else
+	{
 		printf("Layer index out of range");
+	}
+	
 }
 void DataPlotter::select_plot(int nPlotInd)
 {
 	if(nPlotInd < gl.DataPlots.Count())
+	{
 		dp = gl.DataPlots(nPlotInd);
+		printf("Plot selected: %d",nPlotInd);
+	}
 	else
+	{
 		printf("Data Plot index out of range");
+	}
 }
 
 void DataPlotter::add_layer(int nAxisType, int nLinkTo = 0, int nXAxisLink = LINK_STRAIGHT, int nYAxisLink = 0)
@@ -785,6 +798,7 @@ void DataPlotter::make_worksheetpage(string strWksPgName)
 	wksPg.Create();
 	wksPg.SetName(strWksPgName);
 }
+
 void DataPlotter::add_worksheet_from_csv(string strFileName, string strWksName)
 {
     if(wksPg)

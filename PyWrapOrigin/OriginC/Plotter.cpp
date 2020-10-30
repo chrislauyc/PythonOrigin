@@ -39,7 +39,6 @@
 //run.LoadOC(Originlab\\fu_utils.c);
 //run.loadoc(Originlab\\graph_utils.c, 16);
 
-
 DataPlotter dataplotter;
 
 void make_worksheetpage(string strWksPgName)

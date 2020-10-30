@@ -1,13 +1,14 @@
 
 import OriginExt
+import importlib
 import time
 import os
 import numpy as np
 import pandas as pd
-
+import pkg_resources
 # =============================================================================
 # below are the python wrappers for functions written in originC
-# They are called using Labtalk 
+# They are called using Labtalk
 # See Plotter.cpp for reference
 # =============================================================================
 
@@ -37,7 +38,7 @@ def add_reflines_ver(lsReflines,origin):
 def add_reflines_hor(strReflines,origin):
     origin.Execute('add_reflines_hor({});'.format(strReflines))
 def refline_fill_ver(nRefLineIndex,nFillToIndex,nR,nG,nB,origin):
-    origin.Execute('refline_fill_ver({},{},{},{},{});'.format(nRefLineIndex,nFillToIndex,nR,nG,nB))    
+    origin.Execute('refline_fill_ver({},{},{},{},{});'.format(nRefLineIndex,nFillToIndex,nR,nG,nB))
 def refline_fill_hor(nRefLineIndex,nFillToIndex,nR,nG,nB,origin):
     origin.Execute('refline_fill_hor({},{},{},{},{});'.format(nRefLineIndex,nFillToIndex,nR,nG,nB))
 def add_xlinked_layer_right(origin):
@@ -110,10 +111,14 @@ def plot_line_width(dLineWidth,origin):
 # =============================================================================
 # PyWrapOrigin is a higher level class to operate on origin objects
 # =============================================================================
+def get_originC_path():
+    return pkg_resources.resource_filename('PyWrapOrigin','OriginC/Plotter.cpp')
 class PyWrapOrigin():
     #This is the base class that the rest of the objects will inherit from
     def __init__(self):
         self.origin = None
+        self.graphpages = []
+        self.worksheets = []
     def connect(self):
         # Connect to Origin client
         origin = OriginExt.ApplicationSI()
@@ -126,12 +131,18 @@ class PyWrapOrigin():
         #build the path to the origin C code
         code_path = os.path.join(folder_path,'OriginC','Plotter.cpp')
         #run a labtalk command to load and compile the origin C code. See https://www.originlab.com/doc/LabTalk/ref/Run-obj
-        origin.Execute('run.loadoc({},16);'.format(code_path))
+        origin.Execute('run.loadoc({},16);'.format(get_originC_path()))
+        # --------------
+        # to troubleshoot whether the origin c code load properly, run the following commands in labtalk
+        # err = run.loadoc("E:\OneDrive - University of Utah\Anderson's lab\OriginC\Py2OriginC\OriginC\Plotter.cpp",16);
+        # type $(err);
+        # --------------
         #wait for it to compile
         time.sleep(3.5)
         self.origin = origin
     def disconnect(self):
         self.origin.Exit()
+        self.origin = None
     def save_project(self,project_name,full_path):
         # File ending is automatically added by origin
         project_name = project_name.replace('.opju','').replace('.opj','')
@@ -140,6 +151,7 @@ class PyWrapOrigin():
         self.origin.CreatePage(3,name)
         gp = self.origin.GraphPages(name)
         gp = GraphPage(gp,self.origin)
+        self.graphpages.append(gp)
         return gp
     def new_WorkSheet(self,ws_name,wb_name):
         ws = None
@@ -148,18 +160,22 @@ class PyWrapOrigin():
         wb = self.origin.WorksheetPages(wb_name)
         for i in range(wb.Layers.Count): #find the ws matching ws_name
             x = wb.Layers(i)
-            if x.Name == ws_name:
+            if x.Name.lower() == ws_name.lower():
                 ws = x
         if ws == None: #if worksheet doesn't exist, create a new one
             wb.Layers.Add()
             ws = wb.Layers(wb.Layers.Count-1)
             ws.Name = ws_name
         ws_wrapper = WorkSheet(wb,ws,self.origin)
+
+        self.worksheets.append(ws_wrapper) #storing the worksheet
         return ws_wrapper
+    def get_WorkSheet(self,ws_name,wb_name):
+        return self.new_WorkSheet(ws_name,wb_name)
 class WorkSheet():
     #this class will make and destroy worksheets
     #it will also enable data transfer as a dataframe
-    
+
     #need a way to obtain worksheet by name
     def __init__(self,wb,ws,origin):
         self.origin = origin
@@ -168,7 +184,7 @@ class WorkSheet():
     def destroy(self):
         self.ws.Destroy()
     def get_name(self):
-        return self.ws.Name
+        return '[{}]{}'.format(self.wb.Name,self.ws.Name)
     def from_df(self, df, units = None):
         #input will be a pandas dataframe
         if units != None:
@@ -178,10 +194,11 @@ class WorkSheet():
             col = self.ws.Columns(i)
             #col = self.ws.Columns(self.ws.Columns.Count-1)
             col.LongName = c
-            col.SetData(np.float64(df[c])) #This needs some testing
+            # col.SetData(np.float64(df[c])) #This needs some testing
+            col.SetData(np.array(df[c]))
             if units != None:
                 col.Units = units[i]
-            #col.Units = 'something' #need to implement adding units to the worksheet    
+            #col.Units = 'something' #need to implement adding units to the worksheet
     name = property(get_name)
 class GraphObjectBase():
     def __init__(self):
@@ -190,7 +207,7 @@ class GraphObjectBase():
         gp.Layers(0).Activate() #for some reason, this has to be done before calling the x-function
         origin.Execute('pfit2l margin:=tight;') #x-function to fit page to layers
 class GraphPage(GraphObjectBase):
-    def __init__(self,gp,origin):# pass in the actual object 
+    def __init__(self,gp,origin):# pass in the actual object
         GraphObjectBase.__init__(self)
         self.origin = origin
         self.gp = gp
@@ -201,13 +218,14 @@ class GraphPage(GraphObjectBase):
         #show the left and bottom axes of the first layer because they not on by default
         select_graphpage(self.gp.Name,self.origin)
         select_layer(0,self.origin)
+        yaxis_color_automatic(self.origin)
         show_axis(0,self.origin)#AXIS_BOTTOM
         show_axis(1,self.origin)#AXIS_LEFT
     def destroy(self):
         self.gp.Destroy()
     def new_GraphLayer(self,side='right'): #this needs fixing
         self.gp.Layers(0).Activate()
-        
+
         assert(side=='right' or side=='left')
         if side == 'right':
             self.origin.Execute('layadd type:=rightY;')
@@ -242,36 +260,57 @@ class GraphPage(GraphObjectBase):
         return gl_wrappers
     def get_name(self):
         return self.gp.Name
-    
+
     layers = property(get_layers)
     name = property(get_name)
-class GraphLayer(GraphObjectBase): 
+class GraphLayer(GraphObjectBase):
     def __init__(self,gp,gl,origin):
         #new layer will be made whenever get_layer in GraphPage is called.
         #will get attributes stored in the internal origin objects on demand.
-        
+
         #need to autoscale
         GraphObjectBase.__init__(self)
         self.origin = origin
         self.gp = gp
         self.gl = gl
+        self.DataPlots = []
     def destroy(self):
         self.gl.Destroy()
+    # def new_DataPlot(self,ws,x_i,y_i,plot_type='line'):
+    #     #make datarange object
+    #     dr = self.origin.NewDataRange()
+    #     dr.Add('X',ws.ws,0,x_i,-1,x_i)
+    #     dr.Add('Y',ws.ws,0,y_i,-1,y_i)
+    #     #make plot
+    #     if plot_type == 'line':
+    #         dp = self.gl.AddPlot(dr,200)
+    #     elif plot_type == 'scatter':
+    #         self.gl.AddPlot(dr,201)
+    #     elif plot_type == 'linesymb':
+    #         self.gl.AddPlot(dr,202)
+    #     dps = self.gl.DataPlots
+    #     dp = dps[-1]
+    #     dp_wrapper = DataPlot(self.gp,self.gl,dp,self.origin)
+    #     return dp_wrapper
     def new_DataPlot(self,ws,x_i,y_i,plot_type='line'):
-        #make datarange object
-        dr = self.origin.NewDataRange()
-        dr.Add('X',ws.ws,0,x_i,-1,x_i)
-        dr.Add('Y',ws.ws,0,y_i,-1,y_i)
         #make plot
+        select_graphpage(self.gp.Name,self.origin)
+        select_layer(self.gl.Index,self.origin)
         if plot_type == 'line':
-            dp = self.gl.AddPlot(dr,200)
+            make_line_plot(ws.name,x_i,y_i,self.origin)
         elif plot_type == 'scatter':
-            self.gl.AddPlot(dr,201)
+            make_scatter_plot(ws.name,x_i,y_i,self.origin)
         elif plot_type == 'linesymb':
-            self.gl.AddPlot(dr,202)
+            make_linesymb_plot(ws.name,x_i,y_i,self.origin)
         dps = self.gl.DataPlots
         dp = dps[-1]
-        dp_wrapper = DataPlot(self.gp,self.gl,dp,self.origin)
+        # print(type(dps))
+        index = len(dps)-1
+        # for dp in dps:
+        #     print(dp.Index)
+        # print('-------------index: {}-----------'.format(index))
+        dp_wrapper = DataPlot(self.gp,self.gl,dp,index,self.origin)
+        self.DataPlots.append(dp_wrapper)
         return dp_wrapper
     def reflines_ver(self,refList):
         select_graphpage(self.gp.Name,self.origin)
@@ -319,13 +358,13 @@ class GraphLayer(GraphObjectBase):
     def y_label_size(self,size):
         select_graphpage(self.gp.Name,self.origin)
         select_layer(self.gl.Index,self.origin)
-        yaxis_label_size(size,self.origin)   
+        yaxis_label_size(size,self.origin)
         self.fit_page_to_layers(self.gp,self.origin)
     def y_label_format(self,nformat):
         #1=scientific notation
         select_graphpage(self.gp.Name,self.origin)
         select_layer(self.gl.Index,self.origin)
-        yaxis_label_numeric_format(nformat,self.origin)  
+        yaxis_label_numeric_format(nformat,self.origin)
         self.fit_page_to_layers(self.gp,self.origin)
     def x_major_tick_inc(self,increment):
         self.gl.Execute('layer.x.inc = {};'.format(increment))
@@ -348,17 +387,19 @@ class GraphLayer(GraphObjectBase):
             ysmart_axis_increment(self.origin)
     def get_plots(self):
         dps = self.gl.DataPlots
-        dp_wrappers = [DataPlot(self.gp,self.gl,d,self.origin) for d in dps]
+
+        dp_wrappers = [DataPlot(self.gp,self.gl,d,i,self.origin) for i,d in enumerate(dps)]
         self.DataPlots = dp_wrappers
         return dp_wrappers
     plots = property(get_plots)
 class DataPlot(GraphObjectBase):
-    def __init__(self,gp,gl,dp,origin):
+    def __init__(self,gp,gl,dp,index,origin):
         GraphObjectBase.__init__(self)
         self.origin = origin
         self.gp = gp
         self.gl = gl
         self.dp = dp
+        self.index = index
     def destroy(self):
         self.dp.Destroy()
     def line_color(self,r,g,b):
@@ -367,15 +408,21 @@ class DataPlot(GraphObjectBase):
         select_plot(self.dp.Index,self.origin)
         plot_line_color(r,g,b,self.origin)
     def line_width(self,width):
+        # print(self.gp.Name,self.gl.Index,self.index)
         select_graphpage(self.gp.Name,self.origin)
         select_layer(self.gl.Index,self.origin)
-        select_plot(self.dp.Index,self.origin)
+        select_plot(self.index,self.origin)
         plot_line_width(width,self.origin)
     def symb_type(self,s_type):
         select_graphpage(self.gp.Name,self.origin)
         select_layer(self.gl.Index,self.origin)
         select_plot(self.dp.Index,self.origin)
         plot_marker_style(s_type,self.origin)
+    def symb_size(self,size):
+        select_graphpage(self.gp.Name,self.origin)
+        select_layer(self.gl.Index,self.origin)
+        select_plot(self.dp.Index,self.origin)
+        plot_marker_size(size,self.origin)
     def edge_color(self,r,g,b):
         select_graphpage(self.gp.Name,self.origin)
         select_layer(self.gl.Index,self.origin)
@@ -391,6 +438,5 @@ class DataPlot(GraphObjectBase):
         select_layer(self.gl.Index,self.origin)
         select_plot(self.dp.Index,self.origin)
         plot_marker_edge_width(width,self.origin)
-
 #Acknowledgement:
 #    This module contains pieces of code from python_to_originlab (author: jsbangsund, url: python_to_originlab https://github.com/jsbangsund/python_to_originlab)
