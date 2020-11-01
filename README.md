@@ -3,13 +3,22 @@ A python wrapper to OriginLab that allows plotting graphs in OriginLab using pyt
 
 The module utilizes Origin C, LabTalk, and OriginExt to enable plotting Origin graphs from the ground up, without relying on making any template.
 
- Installation:
+ Manual Installation:
  -----
-
- Install from github using ``pip3``:
+Clone the repo:
 
  ``
- pip3 install git+https://github.com/chrislauyc/PyWrapOrigin#egg=PyWrapOrigin
+ git clone https://github.com/chrislauyc/PyWrapOrigin.git
+ ``
+
+ In the cloned directory:
+
+ ``
+ python setyp.py sdist
+ ``
+
+ ``
+ pip install .
  ``
 
  Usage:

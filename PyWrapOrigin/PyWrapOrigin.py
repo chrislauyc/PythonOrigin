@@ -111,8 +111,89 @@ def plot_line_width(dLineWidth,origin):
 # =============================================================================
 # PyWrapOrigin is a higher level class to operate on origin objects
 # =============================================================================
+
+# Colors
+
+
 def get_originC_path():
     return pkg_resources.resource_filename('PyWrapOrigin','OriginC/Plotter.cpp')
+def color(name): #return colors as rgb values
+    if name =='black':
+        return (0,0,0)
+    elif name == 'white':
+        return (255,255,255)
+    elif name == 'red':
+        return (255,0,0)
+    elif name == 'blue':
+        return (0,0,255)
+    elif name == 'green':
+        return (0,255,0)
+    elif name == 'cyan':
+        return (0,255,255)
+    elif name == 'magenta':
+        return (255,0,255)
+    elif name == 'yellow':
+        return (255,255,0)
+    elif name == 'dark yellow':
+        return (128,128,0)
+    elif name == 'navy':
+        return (0,0,128)
+    elif name == 'purple':
+        return (128,0,128)
+    elif name == 'wine':
+        return (128,0,0)
+    elif name == 'olive':
+        return (0,128,0)
+    elif name == 'dark cyan':
+        return (0,128,128)
+    elif name == 'royal':
+        return (0,0,120)
+    elif name == 'orange':
+        return (255,128,0)
+    elif name == 'violet':
+        return (128,0,255)
+    elif name == 'pink':
+        return (255,0,128)
+    elif name == 'lt gray':
+        return (192,192,192)
+    elif name == 'gray':
+        return (128,128,128)
+    elif name == 'lt yellow':
+        return (255,255,128)
+    elif name == 'lt cyan':
+        return (128,255,255)
+    elif name == 'lt magenta':
+        return (255,128,255)
+    elif name == 'dark gray':
+        return (64,64,64)
+    else:
+        raise ValueError('Color name not found!')
+def index_color(index): #return colors as rgb values
+    colors = [
+        (0,0,0),
+        (255,0,0),
+        (0,0,255),
+        (0,255,0),
+        (0,255,255),
+        (255,0,255),
+        (255,255,0),
+        (128,128,0),
+        (0,0,128),
+        (128,0,128),
+        (128,0,0),
+        (0,128,128),
+        (0,0,120),
+        (255,128,0),
+        (128,0,255),
+        (255,0,128),
+        (192,192,192),
+        (128,128,128),
+        (255,255,128),
+        (128,255,255),
+        (255,128,255),
+        (64,64,64)
+    ]
+    return colors[index]
 class PyWrapOrigin():
     #This is the base class that the rest of the objects will inherit from
     def __init__(self):
@@ -309,7 +390,8 @@ class GraphLayer(GraphObjectBase):
         # for dp in dps:
         #     print(dp.Index)
         # print('-------------index: {}-----------'.format(index))
-        dp_wrapper = DataPlot(self.gp,self.gl,dp,index,self.origin)
+        dp_wrapper = DataPlot(self.gp,self.gl,dp,index,plot_type,self.origin)
+        dp_wrapper.default_settings()
         self.DataPlots.append(dp_wrapper)
         return dp_wrapper
     def reflines_ver(self,refList):
@@ -385,23 +467,30 @@ class GraphLayer(GraphObjectBase):
             xsmart_axis_increment(self.origin)
         elif axis=='Y':
             ysmart_axis_increment(self.origin)
-    def get_plots(self):
-        dps = self.gl.DataPlots
-
-        dp_wrappers = [DataPlot(self.gp,self.gl,d,i,self.origin) for i,d in enumerate(dps)]
-        self.DataPlots = dp_wrappers
-        return dp_wrappers
-    plots = property(get_plots)
 class DataPlot(GraphObjectBase):
-    def __init__(self,gp,gl,dp,index,origin):
+    def __init__(self,gp,gl,dp,index,plot_type,origin):
         GraphObjectBase.__init__(self)
         self.origin = origin
         self.gp = gp
         self.gl = gl
         self.dp = dp
         self.index = index
+        self.plot_type = plot_type
     def destroy(self):
         self.dp.Destroy()
+    def default_settings(self):
+        if self.plot_type == 'line':
+            self.line_width(1)
+        elif self.plot_type == 'scatter':
+            self.symb_type(2)
+            self.symb_size(3)
+            self.edge_color(*index_color(self.gl.Index))
+            self.face_color(*color('white'))
+        elif self.plot_type == 'linesymb':
+            self.symb_type(2)
+            self.symb_size(3)
+            self.edge_color(*index_color(self.gl.Index))
+            self.face_color(*color('white'))
     def line_color(self,r,g,b):
         select_graphpage(self.gp.Name,self.origin)
         select_layer(self.gl.Index,self.origin)

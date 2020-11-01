@@ -7,7 +7,7 @@
  * 																				*
  * Modification Log:															*
  *------------------------------------------------------------------------------*/
- 
+
 ////////////////////////////////////////////////////////////////////////////////////
 // Including the system header file Origin.h should be sufficient for most Origin
 // applications and is recommended. Origin.h includes many of the most common system
@@ -69,7 +69,7 @@ DataPlotter::DataPlotter(string sGraphPageName)
 		temp.SetName(sGraphPageName);
 	}
 	gp = temp;
-	gl = gp.Layers(0);	
+	gl = gp.Layers(0);
 	x_linked = false;
 	y_linked = false;
 }
@@ -80,33 +80,33 @@ void DataPlotter::select_graphpage(string sGraphPageName)
 	{
 		temp.Create();
 		temp.SetName(sGraphPageName);
-		printf("Created new graphpage");
+		//printf("Created new graphpage");
 	}
 	gp = temp;
-	gl = gp.Layers(0);	
+	gl = gp.Layers(0);
 	x_linked = false;
 	y_linked = false;
-	printf("Graphpage selected: %s",sGraphPageName);
+	//printf("Graphpage selected: %s",sGraphPageName);
 }
 void DataPlotter::select_layer(int nLayerInd)
 {
 	if(nLayerInd < gp.Layers.Count())
 	{
 		gl = gp.Layers(nLayerInd);
-		printf("Layer selected: %d",nLayerInd);
+		//printf("Layer selected: %d",nLayerInd);
 	}
 	else
 	{
 		printf("Layer index out of range");
 	}
-	
+
 }
 void DataPlotter::select_plot(int nPlotInd)
 {
 	if(nPlotInd < gl.DataPlots.Count())
 	{
 		dp = gl.DataPlots(nPlotInd);
-		printf("Plot selected: %d",nPlotInd);
+		//printf("Plot selected: %d",nPlotInd);
 	}
 	else
 	{
@@ -116,7 +116,7 @@ void DataPlotter::select_plot(int nPlotInd)
 
 void DataPlotter::add_layer(int nAxisType, int nLinkTo = 0, int nXAxisLink = LINK_STRAIGHT, int nYAxisLink = 0)
 {
-	// nLinkTo will determine which axis will be visible. 
+	// nLinkTo will determine which axis will be visible.
 	// int nLinkTo is the index of the layer to link to
 	// int nXAxisLink is how the x axis should be linked. Options are: 0, LINK_STRAIGHT, LINKED_AXIS_CUSTOM, LINKED_AXIS_ALIGN
 	// int nYAxisLink is how the y axis should be linked. Options are: 0, LINK_STRAIGHT, LINKED_AXIS_CUSTOM, LINKED_AXIS_ALIGN
@@ -143,14 +143,14 @@ void DataPlotter::add_layer(int nAxisType, int nLinkTo = 0, int nXAxisLink = LIN
 	int nLayerInt = gp.Layers.Count()-1;
 	//store the newest layer
 	gl = gp.Layers(nLayerInt);
-	
+
 }
 void DataPlotter::graphpage_resize(double dWidth, double dHeight)
 {
 	/*
 	tr.Root.Dimension.Width.dVal = dWidth;
 	tr.Root.Dimension.Height.dVal = dHeight;
-	
+
 	int nErr = gp.UpdateThemeIDs(tr.Root);// allows a tree with no theme ID to be used in ApplyFormat
 	if(nErr ==0)
 		gp.ApplyFormat(tr,true,true);
@@ -187,26 +187,26 @@ void DataPlotter::add_reflines(int nAxisType, string strReflines)
 	int nEle = count_elements(strReflines);
 	tr.Root.RefLines.Count.nVal = nEle+2;//number of reflines including beginning and end
 	update_axis(tr, axis);
-	
+
 	//switch show to true
 	axis = get_axis(nAxisType);
 	tr = axis.GetFormat(FPB_ALL, FOB_ALL, true, true);
-	
-	
+
+
 	TreeNode refline_parent;
 	refline_parent = tr.Root.Reflines.Reflines;
 	Collection<TreeNode> refline_nodes; //collection to store reflines
-	
-	
+
+
 	refline_nodes = refline_parent.Children;
 	int nReflines = refline_nodes.Count();
-	
+
 	for(int i = 0; i < nReflines; i++)
 	{
 		TreeNode refline = refline_nodes.Item(i);
 		tr.Root.RefLines.Reflines.GetNode(refline.tagName).GetNode("Line").GetNode("Show").nVal = 1;
 	}
-	
+
 	//tr.Root.RefLines.Reflines.GetNode("RefLine1").GetNode("Fill").GetNode("Next").nVal = 2;
 	update_axis(tr, axis);
 	gl = current_gl; //set the graph layer back to original
@@ -215,11 +215,11 @@ void DataPlotter::refline_fill(int nAxisType, int nRefLineIndex,  int nFillToInd
 {
 	GraphLayer current_gl = gl; //hold on to the current graph layer
 	select_layer(0); //use the first layer
-	
+
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
 	tr = axis.GetFormat(FPB_ALL, FOB_ALL, true, true);
-	
+
 	TreeNode refline_parent;
 	refline_parent = tr.Root.Reflines.Reflines;
 	Collection<TreeNode> refline_nodes; //collection to store reflines
@@ -229,7 +229,7 @@ void DataPlotter::refline_fill(int nAxisType, int nRefLineIndex,  int nFillToInd
 	tr.Root.RefLines.Reflines.GetNode(refline.tagName).GetNode("Fill").GetNode("Next").nVal = nFillToIndex; //Set the fill to index
 	tr.Root.RefLines.Reflines.GetNode(refline.tagName).GetNode("Fill").GetNode("Color").nVal = dwColor; // set the color of the fill
 	update_axis(tr, axis);
-	
+
 	gl = current_gl; //set the graph layer back to original
 }
 void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool bLabels = true, bool bTitleOn = true, int nMajorTicks = TICK_OUT, int nMinorTicks = TICK_OUT)
@@ -273,12 +273,12 @@ void DataPlotter::show_axis(int nAxisType = AXIS_LEFT, bool bAxisOn = true, bool
 {
 	//nAxisType: AXIS_LEFT, AXIS_RIGHT, AXIS_TOP, AXIS_BOTTOM
 	vector<int> temp(4);
-	
+
 	temp[0] = 0;
 	temp[1] = 0;
 	temp[2] = 0;
 	temp[3] = 0;
-	
+
 	// Show all axes, labels, and titles. 0 or 1, 1 for show.
 	vector<int> vnAxes;
 	vector<int> vnLabels;
@@ -324,7 +324,7 @@ void DataPlotter::axis_from(int nAxisType, double dFrom)
 	{
 		//go through each graph layer and change the range
 		//this is because for some reasons not all layers will update the range
-		//when being displayed. 
+		//when being displayed.
 		for(int i=0;i < gp.Layers.Count();i++)
 		{
 			select_layer(i);
@@ -370,27 +370,27 @@ void DataPlotter::axis_increment_by_value(int nAxisType, double dIncrementBy)
 {
 	Tree tr;
 	//tr = gl.YAxis.GetFormat(FPB_ALL, FOB_ALL, true, true);
-	Axis axis = get_axis(nAxisType);	
+	Axis axis = get_axis(nAxisType);
 	tr.Root.Scale.Value.dVal = dIncrementBy;
 	tr.Root.Scale.IncrementBy.nVal = 0; //increment by count
 	update_axis(tr, axis);
 }
 void DataPlotter::axis_increment_by_ticks(int nAxisType, int nMajTicksCount)
 {
-	
+
 	Tree tr;
 	//tr = gl.YAxis.GetFormat(FPB_ALL, FOB_ALL, true, true);
-	
+
 	Axis axis = get_axis(nAxisType);
 	tr.Root.Scale.MajorTicksCount.nVal = nMajTicksCount;
 
 	tr.Root.Scale.IncrementBy.nVal = 1; //increment by count
 	update_axis(tr, axis);
-	
+
 }
 void DataPlotter::smart_axis_increment(int nAxisType)
 {
-	
+
 	Tree tr;
 	//tr = gl.YAxis.GetFormat(FPB_ALL, FOB_ALL, true, true);
 	int nMajTicksCount = 5;
@@ -401,9 +401,9 @@ void DataPlotter::smart_axis_increment(int nAxisType)
 	double diff = dTo-dFrom;
 	double exp = log10(diff/nMajTicksCount);
 	int iexp = round(exp,0);
-	
+
 	double dIncrementBy = pow(10,iexp);
-	
+
 	if(diff/dIncrementBy <= 3)
 		dIncrementBy = dIncrementBy/2;
 	else if(diff/dIncrementBy >= 9)
@@ -445,8 +445,8 @@ void DataPlotter::smart_axis_increment(int nAxisType)
 			break;
 	}
 	update_axis(tr, axis);
-	
-	
+
+
 
 }
 
@@ -457,7 +457,7 @@ void DataPlotter::axis_rescale_type(int nAxisType, int nType)
 	//linear, log10, ...
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
-	tr.Root.Scale.Type.nVal = nType;	
+	tr.Root.Scale.Type.nVal = nType;
 	update_axis(tr, axis);
 }
 void DataPlotter::axis_rescale(int nAxisType, int nRescale)
@@ -466,7 +466,7 @@ void DataPlotter::axis_rescale(int nAxisType, int nRescale)
 	//Fixed, Normal, Auto, ...
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
-	tr.Root.Scale.Rescale.nVal = nRescale;	
+	tr.Root.Scale.Rescale.nVal = nRescale;
 	update_axis(tr, axis);
 }
 void DataPlotter::axis_rescale_margin(int nAxisType, double dResMargin)
@@ -474,7 +474,7 @@ void DataPlotter::axis_rescale_margin(int nAxisType, double dResMargin)
 	//rescale margin percentage
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
-	tr.Root.Scale.RescaleMargin.dVal = dResMargin;	
+	tr.Root.Scale.RescaleMargin.dVal = dResMargin;
 	update_axis(tr, axis);
 }
 
@@ -507,12 +507,12 @@ void DataPlotter::axis_label_size(int nAxisType, double dSize)
 		break;
 	}
 	update_axis(tr, axis);
-	
+
 }
 void DataPlotter::axis_label_numeric_format(int nAxisType, int nFormat)
 {
-	
-	
+
+
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
 	switch(nAxisType)
@@ -534,7 +534,7 @@ void DataPlotter::axis_label_numeric_format(int nAxisType, int nFormat)
 	update_axis(tr, axis);
 	//tr = dp.GetFormat(FPB_ALL, FOB_ALL, true, true);
 	//out_tree(tr);
-	
+
 }
 void DataPlotter::axis_title_size(int nAxisType, double dSize)
 {
@@ -559,7 +559,7 @@ void DataPlotter::axis_title_size(int nAxisType, double dSize)
 }
 void DataPlotter::axis_title_text(int nAxisType, string strText)
 {
-	
+
 	Tree tr;
 	Axis axis = get_axis(nAxisType);
 	switch(nAxisType)
@@ -662,37 +662,37 @@ void DataPlotter::axis_pos_offset(int nAxisType, double dPosOffset)
 		ao.SetPosition(1,dPosOffset);
 		break;
 	}
-	
+
 }
 void DataPlotter::make_plot(string sWksName, int nCx, int nCy, int nPlotID)
 {
 	//
 	//DataRange is for getting and putting data from and to a worksheet, matrix, and graph window
-	
-	
-	//nPlotID: 
+
+
+	//nPlotID:
 	//IDM_PLOT_LINE for line;
 	//IDM_PLOT_SCATTER for scatter;
 	//IDM_PLOT_LINESYMB for line + symbol.
-	
+
 	//marker: "None", "o"
 	//linestyle: "None", "-"
 	//color: "b".It is an RGB color
-	
+
 	//Determine plot type
 	Worksheet wks(sWksName);
-	
+
 	//Create data range
 	DataRange dr;
 	dr.Add(wks,nCx,"X");
 	dr.Add(wks,nCy,"Y");
-	
-	
+
+
 	int nPlot = gl.AddPlot(dr,nPlotID);
-	
+
 	dp = gl.DataPlots(nPlot);
 	gl.Rescale();
-	
+
 	//dp.SetColor(RGB2OCOLOR(color));
 	////Show tree of the dataplot
 	//Tree tr;
@@ -806,7 +806,7 @@ void DataPlotter::add_worksheet_from_csv(string strFileName, string strWksName)
 		string fileName = strFileName;  // csv file browser
 		if(!fileName.IsFile())
 			return;
-		
+
 		// create a new worksheet
 		int index = wksPg.AddLayer(strWksName);
 		Worksheet wks = wksPg.Layers(index);
@@ -826,7 +826,6 @@ void DataPlotter::add_worksheet_from_csv(string strFileName, string strWksName)
 		{
 			// import
 			wks.ImportASCII(fileName, ai);
-		}   
+		}
     }
 }
-
