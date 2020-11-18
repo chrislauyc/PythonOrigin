@@ -1,9 +1,9 @@
 # PyWrapOrigin
-OriginPro is a graphing and analysis software used by many scientists. Sometimes making many plots by hand can be tedious and is necessary for automation. The OriginPro software is packaged with its own programming languages such as Origin C and LabTalk. But they are difficult for users to learn and implement.
+Origin is a graphing and analysis software used by many scientists. Making many plots by hand can be tedious, so sometimes it's better to automate the process. The Origin software is packaged with its own programming languages such as Origin C and LabTalk. But they are difficult for users to learn and implement. Origin also provides python APIs such as the automation server, PyOrigin, Originpro and OriginExt, which intend to provide access to Origin from python. However, none of these tools support full plotting functionalities, and it is often necessary to first create a graph template, then send data from python to be plotted. This adds time and inconvience in plotting. 
 
-PyWrapOrigin is a python wrapper to Origin that allows plotting graphs in Origin using python.
+PyWrapOrigin is a python wrapper to Origin C, LabTalk, and OriginExt that allows plotting graphs in Origin from python possible and easy to do.
 
-The module utilizes Origin C, LabTalk, and OriginExt to enable plotting Origin graphs from the ground up, without relying on using any template.
+This module enables plotting Origin graphs from the ground up, without relying on using any template.
 
 Installation:
  -----
@@ -94,7 +94,7 @@ Import Library
  ```
  Figure plotted.
 
-![Origin Plot Example]()
+![Origin Plot Example](/imgs/plot1.JPG)
 
 Reference lines can also be added to the figure
  ```python
@@ -103,7 +103,7 @@ Reference lines can also be added to the figure
  # Can fill the space between two reflines with colors
  lay0.refline_fill_ver(0,1,128,172,242)
  ```
-![Origin Plot With Ref Lines]()
+![Origin Plot With Ref Lines](/imgs/plot1_ver_fill.JPG)
 
  Dependencies:
  -----
