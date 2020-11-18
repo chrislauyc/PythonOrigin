@@ -417,10 +417,16 @@ class GraphLayer(GraphObjectBase):
     def y_scale(self):
         pass
     def x_title(self,label):
-        self.gl.Execute('label -xb {};'.format(label))
+        # self.gl.Execute('label -xb {};'.format(label))
+        select_graphpage(self.gp.Name,self.origin) # calling originC functions
+        select_layer(self.gl.Index,self.origin)
+        xtitle(label,self.origin)
         self.fit_page_to_layers(self.gp,self.origin)
     def y_title(self,label):
-        self.gl.Execute('label -yl {};'.format(label))
+        # self.gl.Execute('label -yl {};'.format(label))
+        select_graphpage(self.gp.Name,self.origin) # calling originC functions
+        select_layer(self.gl.Index,self.origin)
+        ytitle(label,self.origin)
         self.fit_page_to_layers(self.gp,self.origin)
     def x_title_size(self,size):
         select_graphpage(self.gp.Name,self.origin) # calling originC functions
